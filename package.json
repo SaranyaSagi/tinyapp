@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/SaranyaSagi/tinyapp/issues"
   },
-  "homepage": "https://github.com/SaranyaSagi/tinyapp#readme"
+  "homepage": "https://github.com/SaranyaSagi/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
