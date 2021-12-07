@@ -65,12 +65,27 @@ app.post('/urls/:shortURL/delete', (req, res) =>{
   // extract the id
   const shortURL = req.params.shortURL;
 
-  // delete this joke from db
+  // delete this url from db
   delete urlDatabase[shortURL];
 
   res.redirect('/urls')
 
 })
+
+app.post('/urls/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL
+
+  urlDatabase[shortURL] = longURL;
+
+  res.redirect('/urls');
+})
+
+
+
+
+
+
 
 app.get("/", (req, res) => {
   res.send("Hello!");
