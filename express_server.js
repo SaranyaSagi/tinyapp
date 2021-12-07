@@ -12,6 +12,19 @@ const urlDatabase = {
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
+//for now return a string of 6 random alphanumeric characters
+function generateRandomString(length = 6) {
+//returns random string to be used as shortURL
+    let result  = '';
+    let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * 
+ charactersLength));
+   }
+   return result;
+}
+
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
@@ -30,8 +43,12 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //define route to match POST request and handle it.
 app.post("/urls", (req, res) => {
+  const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
+
+
   console.log(req.body);
-  res.send("Ok")
+  res.send("Ok") //obj['shortURL'] = value/longURL
 })
 
 app.get("/", (req, res) => {
