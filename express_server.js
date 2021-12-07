@@ -9,12 +9,16 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
 //this needs to be placed before the get /urls/:id
+//routes should be ordered from most specific to least specific.
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
