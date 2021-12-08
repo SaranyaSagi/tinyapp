@@ -121,6 +121,7 @@ app.post('/logout', (req, res) => {
   res.clearCookie("user_id");
   res.redirect('/urls');
 });
+
 app.get("/register", (req, res) => {
 
   let currentUser = getUserObject(req.cookies['user_id']);
@@ -134,10 +135,10 @@ app.get("/register", (req, res) => {
 //Registration handler
 app.post('/register', (req, res) => {
   
-  if (!req.body.email || !req.body.password) {
-    res.send("Invalid email or password")
-    return;
-  } 
+  // if (!req.body.email || !req.body.password) {
+  //   res.send("Invalid email or password")
+  //   return;
+  // } 
   let user_id = generateRandomString()
   let user = {
     id: user_id,
