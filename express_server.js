@@ -38,7 +38,7 @@ const getUserObject = function(user_id) {
   return currentUser;
 }
 
-const thatFunction = function(email) {
+const doesEmailExist = function(email) {
   let result = false;
   for (let key in users) {
     if (users[key].email === email) {
@@ -154,7 +154,7 @@ app.post('/register', (req, res) => {
     return ;
   } 
 
-  if (thatFunction(req.body.email)) {
+  if (doesEmailExist(req.body.email)) {
     res.status(400).send("Email already exists");
     return; 
   }; 
