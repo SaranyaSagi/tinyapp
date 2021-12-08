@@ -154,10 +154,10 @@ app.post('/register', (req, res) => {
     return ;
   } 
 
-  // if (thatFunction(req.body.email)) {
-  //   res.status(400).send("Email already exists");
-  //   return; 
-  // }; 
+  if (thatFunction(req.body.email)) {
+    res.status(400).send("Email already exists");
+    return; 
+  }; 
 
   let user_id = generateRandomString()
   let user = {
