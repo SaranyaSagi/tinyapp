@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const { response } = require("express");
 
 const app = express();
 const PORT = 8080;
@@ -36,6 +37,17 @@ const getUserObject = function(user_id) {
   }
   return currentUser;
 }
+
+// const thatFunction = function(email) {
+//   let result = false;
+//   for (let key in users) {
+//     if (users[key].email === email) {
+//       result = true;
+//       break;
+//     }
+//   }
+//   return result;
+// };
 
 app.get("/urls", (req, res) => {
   //redirects here
@@ -83,7 +95,6 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-//going to that link
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
@@ -110,6 +121,7 @@ app.post('/urls/:shortURL', (req, res) => {
   res.redirect('/urls');
 });
 
+
 app.post('/login', (req, res) => {
   let currentUser = getUserObject(req.cookies['user_id']);
   res.cookie("user_id", currentUser.id);
@@ -122,8 +134,8 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
-app.get("/register", (req, res) => {
 
+app.get("/register", (req, res) => {
   let currentUser = getUserObject(req.cookies['user_id']);
   
   const templateVars = {
@@ -136,9 +148,17 @@ app.get("/register", (req, res) => {
 app.post('/register', (req, res) => {
   
   if (!req.body.email || !req.body.password) {
-    res.send("Invalid email or password")
-    return;
+    //res.send("Invalid email or password")
+    res.status(400).send("Invalid email or password")
+    //res.statusCode = 400
+    return ;
   } 
+
+  // if (thatFunction(req.body.email)) {
+  //   res.status(400).send("Email already exists");
+  //   return; 
+  // }; 
+
   let user_id = generateRandomString()
   let user = {
     id: user_id,
@@ -147,19 +167,11 @@ app.post('/register', (req, res) => {
   };
   users[user_id] = user;
 
-
   res.cookie("user_id", user_id)
 
-  //console.log(users)
+  console.log(users)
   res.redirect('/urls');
 })
-
-
-
-
-
-
-
 
 
 
