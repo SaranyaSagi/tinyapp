@@ -38,16 +38,16 @@ const getUserObject = function(user_id) {
   return currentUser;
 }
 
-// const thatFunction = function(email) {
-//   let result = false;
-//   for (let key in users) {
-//     if (users[key].email === email) {
-//       result = true;
-//       break;
-//     }
-//   }
-//   return result;
-// };
+const thatFunction = function(email) {
+  let result = false;
+  for (let key in users) {
+    if (users[key].email === email) {
+      result = true;
+      break;
+    }
+  }
+  return result;
+};
 
 app.get("/urls", (req, res) => {
   //redirects here
