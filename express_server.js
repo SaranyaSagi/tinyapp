@@ -134,6 +134,43 @@ app.post('/logout', (req, res) => {
   res.redirect('/urls');
 });
 
+app.get("/login", (req, res) => {
+  let currentUser = getUserObject(req.cookies['user_id']);
+  
+  const templateVars = {
+    user: currentUser
+  };
+  res.render("urls_login", templateVars);
+});
+
+
+app.post('/login', (req, res) => {
+  
+  if (!req.body.email || !req.body.password) {
+    //res.send("Invalid email or password")
+    res.status(400).send("Invalid email or password")
+    //res.statusCode = 400
+    return ;
+  } 
+  
+  if (doesEmailExist(req.body.email)) {
+    res.status(400).send("Email already exists");
+    return; 
+  }; 
+  
+  let user_id = generateRandomString()
+  let user = {
+    id: user_id,
+    email: req.body.email,
+    password: req.body.password
+  };
+  users[user_id] = user;
+  
+  res.cookie("user_id", user_id)
+  
+  console.log(users)
+  res.redirect('/urls');
+})
 
 app.get("/register", (req, res) => {
   let currentUser = getUserObject(req.cookies['user_id']);
