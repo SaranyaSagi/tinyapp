@@ -135,10 +135,10 @@ app.get("/register", (req, res) => {
 //Registration handler
 app.post('/register', (req, res) => {
   
-  // if (!req.body.email || !req.body.password) {
-  //   res.send("Invalid email or password")
-  //   return;
-  // } 
+  if (!req.body.email || !req.body.password) {
+    res.send("Invalid email or password")
+    return;
+  } 
   let user_id = generateRandomString()
   let user = {
     id: user_id,
