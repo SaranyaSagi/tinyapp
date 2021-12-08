@@ -1,4 +1,6 @@
 const express = require("express");
+const cookieParser = require("cookie-parser")
+
 const app = express();
 const PORT = 8080;
 
@@ -11,7 +13,8 @@ const urlDatabase = {
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-//const { response } = require("express");
+
+app.use(cookieParser());
 
 const generateRandomString = function(length = 6) {
 //returns random (6 alphanumeric characters) string to be used as shortURL
@@ -25,19 +28,29 @@ const generateRandomString = function(length = 6) {
 };
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    username: req.cookies["username"],
+    urls: urlDatabase 
+  };
   res.render("urls_index", templateVars);
 });
 
 //this needs to be placed before the get /urls/:id
 //routes should be ordered from most specific to least specific.
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { 
+    username: req.cookies["username"]
+  }
+  res.render("urls_new", templateVars);
 });
 
 //line 58 gets redirected here
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { 
+    username: req.cookies["username"],
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL] 
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -81,10 +94,16 @@ app.post('/urls/:shortURL', (req, res) => {
   res.redirect('/urls');
 })
 
+app.post('/login', (req, res) => {
+  res.cookie("username", req.body.username);
+  //console.log(req.body)
+  res.redirect('/urls');
+})
 
-
-
-
+// app.post('/logout', (req, res) => {
+//   res.clearCookie("username");
+//   res.redirect('/urls');
+// });
 
 
 app.get("/", (req, res) => {
