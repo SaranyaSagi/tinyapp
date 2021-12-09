@@ -24,9 +24,11 @@
         </tr>
       </thead>
       <tbody>
+        <% if (!user){ %>
         <div class="alert alert-primary" role="alert">
           Please register or log in to use app features!
         </div>
+        <% } %>
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
