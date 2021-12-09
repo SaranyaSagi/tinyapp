@@ -15,7 +15,13 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-const users = {};
+const users = {
+  "random": {
+    id: "random",
+    email: "sunny@gee.com",
+    password: "sunny"
+  }
+};
 
 const generateRandomString = function(length = 6) {
 //returns random (6 alphanumeric characters) string to be used as shortURL
@@ -36,6 +42,16 @@ const getUserObject = function(user_id) {
     }
   }
   return currentUser;
+}
+
+const getUserByEmail = function(email) {
+
+  for (let key in users) {
+    if (users[key].email === email) {
+      return users[key].id;
+    }
+  }
+  return null;
 }
 
 const doesEmailExist = function(email) {
@@ -122,13 +138,6 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 
-app.post('/login', (req, res) => {
-  let currentUser = getUserObject(req.cookies['user_id']);
-  res.cookie("user_id", currentUser.id);
-  //console.log(req.body)
-  res.redirect('/urls');
-});
-
 app.post('/logout', (req, res) => {
   res.clearCookie("user_id");
   res.redirect('/urls');
@@ -147,30 +156,29 @@ app.get("/login", (req, res) => {
 app.post('/login', (req, res) => {
   
   if (!req.body.email || !req.body.password) {
-    //res.send("Invalid email or password")
-    res.status(400).send("Invalid email or password")
+  //res.send("Invalid email or password")
+    res.status(403).send("Invalid email or password")
     //res.statusCode = 400
     return ;
   } 
   
-  if (doesEmailExist(req.body.email)) {
-    res.status(400).send("Email already exists");
-    return; 
-  }; 
+  console.log(req.body.email, users)
+  const user_id = getUserByEmail(req.body.email)
+  if (user_id === null) {
+    res.status(403).send("Email does not exist")
+    return;
+  }
   
-  let user_id = generateRandomString()
-  let user = {
-    id: user_id,
-    email: req.body.email,
-    password: req.body.password
-  };
-  users[user_id] = user;
-  
+  if (users[user_id].password !== req.body.password) {
+    res.status(403).send("Wrong Password")
+    return;
+  }
+
   res.cookie("user_id", user_id)
   
-  console.log(users)
+  //console.log(users)
   res.redirect('/urls');
-})
+});
 
 app.get("/register", (req, res) => {
   let currentUser = getUserObject(req.cookies['user_id']);
@@ -185,12 +193,10 @@ app.get("/register", (req, res) => {
 app.post('/register', (req, res) => {
   
   if (!req.body.email || !req.body.password) {
-    //res.send("Invalid email or password")
     res.status(400).send("Invalid email or password")
-    //res.statusCode = 400
     return ;
   } 
-
+    
   if (doesEmailExist(req.body.email)) {
     res.status(400).send("Email already exists");
     return; 
