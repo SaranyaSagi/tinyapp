@@ -12,10 +12,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 //Databases
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com"
-// };
 const urlDatabase = {
   b6UTxQ: {
       longURL: "https://www.tsn.ca",
@@ -26,7 +22,6 @@ const urlDatabase = {
       userID: "user2RandomID"
   }
 };
-
 
 const users = { 
   "userRandomID": {
@@ -174,7 +169,6 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(URL.longURL);
 });
 
-
 app.post('/urls/:shortURL/delete', (req, res) =>{
   
   if (!req.cookies.user_id) {
@@ -216,28 +210,36 @@ app.get("/login", (req, res) => {
 
 app.post('/login', (req, res) => {
   
+  console.log(users);
+
   if (!req.body.email || !req.body.password) {
   //res.send("Invalid email or password")
     res.status(403).send("Invalid email or password")
     //res.statusCode = 400
     return ;
   } 
-  
-  console.log(req.body.email, users)
+
   const user_id = getUserByEmail(req.body.email)
   if (user_id === null) {
     res.status(403).send("Email does not exist")
     return;
   }
   
-  if (users[user_id].password !== req.body.password) {
-    res.status(403).send("Wrong Password")
-    return;
-  }
+  // if (users[user_id].password !== req.body.password) {
+  //   res.status(403).send("Wrong Password")
+  //   return;
+  // }
 
-  res.cookie("user_id", user_id)
+  if (!(bcrypt.compareSync(req.body.password, users[user_id].password))) {
+    res.status(403).send("Wrong Password");
+    return;
+  };
+
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+  console.log(bcrypt.compareSync("code", hashedPassword));
   
-  //console.log(users)
+  res.cookie("user_id", user_id)
+ 
   res.redirect('/urls');
 });
 
@@ -264,16 +266,17 @@ app.post('/register', (req, res) => {
   }; 
 
   let user_id = generateRandomString()
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   let user = {
     id: user_id,
     email: req.body.email,
-    password: req.body.password
+    //password: req.body.password
+    password: hashedPassword
   };
   users[user_id] = user;
 
   res.cookie("user_id", user_id)
 
-  console.log(users)
   res.redirect('/urls');
 })
 
