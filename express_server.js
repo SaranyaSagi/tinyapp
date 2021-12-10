@@ -40,7 +40,7 @@ const users = {
 
 //Functions
 
-//This fucntion returns user object of the email if found.
+//This fucntion returns user object of the email if found in database
 const getUserByEmail = require('./helpers');
 
 const generateRandomString = function(length = 6) {
@@ -75,6 +75,7 @@ const doesEmailExist = function(email) {
   return result;
 };
 
+//Add urls associated with that user to user database using id.
 const urlsForUser = function(id) {
   let userUrls = {};
   for (let url in urlDatabase) {
@@ -126,6 +127,7 @@ app.get("/urls/:shortURL", (req, res) => {
   
   let currentUser = getUserObject(req.session.user_id);
 
+  //Check if short url is from user database
   if (!urlDatabase[req.params.shortURL]) {
     return res.send("Error: Short URL not found");
   }
@@ -151,6 +153,7 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   
+  //Adding user_id to url database and associating it with short url key
   urlDatabase[shortURL] = { longURL: longURL, userID: req.session.user_id};
   
   res.redirect(`/urls`);
@@ -168,6 +171,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.post('/urls/:shortURL/delete', (req, res) =>{
   
+  //Check if user is logged in
   if (!req.session.user_id) {
     res.redirect('/login');
   }
@@ -183,10 +187,12 @@ app.post('/urls/:shortURL/delete', (req, res) =>{
 });
 
 app.post('/urls/:shortURL', (req, res) => {
+  //Check if user is logge in
   if (!req.session.user_id) {
     return res.redirect('/login');
   }
 
+  //checking if cookie is not matching existing userIDs
   if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
     return res.send("Need to login first");
   }
@@ -216,17 +222,20 @@ app.get("/login", (req, res) => {
 
 app.post('/login', (req, res) => {
   
+  //Checking if email or password fields are empty
   if (!req.body.email || !req.body.password) {
     res.status(403).send("Invalid email or password");
     return;
   }
 
+  //Use helper function to see if email matches existing users.
   const user_id = getUserByEmail(req.body.email, users);
   if (user_id === null) {
     res.status(403).send("Email does not exist");
     return;
   }
 
+  //Checking if password existing password for associated email
   if (!(bcrypt.compareSync(req.body.password, users[user_id].password))) {
     res.status(403).send("Wrong Password");
     return;
@@ -237,6 +246,7 @@ app.post('/login', (req, res) => {
   res.redirect('/urls');
 });
 
+//Registration Handler
 app.get("/register", (req, res) => {
   let currentUser = getUserObject(req.session.user_id);
   
@@ -259,6 +269,7 @@ app.post('/register', (req, res) => {
   }
 
   let user_id = generateRandomString();
+  //Using bcrypt to hash the passwords for security.
   const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   let user = {
     id: user_id,
