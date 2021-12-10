@@ -1,8 +1,7 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
-const bcrypt = require("bcryptjs")
-const { response } = require("express");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 const PORT = 8080;
@@ -12,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: ["secret-keys"],
-}))
+}));
 
 //Databases
 const urlDatabase = {
@@ -102,20 +101,6 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.post("/urls", (req, res) => {
-
-  if (!req.session.user_id) {
-    return res.send("Need to login/register first");
-  }
-
-  const shortURL = generateRandomString();
-  const longURL = req.body.longURL;
-  
-  urlDatabase[shortURL] = { longURL: longURL, userID: req.session.user_id};
-  
-  res.redirect(`/urls`);
-});
-
 //this needs to be placed before the get /urls/:id
 //routes should be ordered from most specific to least specific.
 app.get("/urls/new", (req, res) => {
@@ -156,21 +141,18 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.post('/urls/:shortURL', (req, res) => {
+app.post("/urls", (req, res) => {
+
   if (!req.session.user_id) {
-    return res.redirect('/login');
+    return res.send("Need to login/register first");
   }
 
-  if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
-    return res.send("Need to login first");
-  }
-
-  const shortURL = req.params.shortURL;
+  const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   
-  urlDatabase[shortURL].longURL = longURL;
-
-  res.redirect('/urls');
+  urlDatabase[shortURL] = { longURL: longURL, userID: req.session.user_id};
+  
+  res.redirect(`/urls`);
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -200,6 +182,28 @@ app.post('/urls/:shortURL/delete', (req, res) =>{
   res.redirect('/urls');
 });
 
+app.post('/urls/:shortURL', (req, res) => {
+  if (!req.session.user_id) {
+    return res.redirect('/login');
+  }
+
+  if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
+    return res.send("Need to login first");
+  }
+
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
+  
+  urlDatabase[shortURL].longURL = longURL;
+
+  res.redirect('/urls');
+});
+
+app.post('/logout', (req, res) => {
+  req.session.user_id = null;
+  res.redirect('/urls');
+});
+
 app.get("/login", (req, res) => {
   let currentUser = getUserObject(req.session.user_id);
   
@@ -212,9 +216,9 @@ app.get("/login", (req, res) => {
 app.post('/login', (req, res) => {
   
   if (!req.body.email || !req.body.password) {
-    res.status(403).send("Invalid email or password")
-    return ;
-  };
+    res.status(403).send("Invalid email or password");
+    return;
+  }
 
   const user_id = getUserByEmail(req.body.email, users);
   if (user_id === null) {
@@ -233,11 +237,6 @@ app.post('/login', (req, res) => {
   //original - res.cookie("user_id", user_id)
   req.session['user_id'] = user_id;
 
-  res.redirect('/urls');
-});
-
-app.post('/logout', (req, res) => {
-  req.session.user_id = null;
   res.redirect('/urls');
 });
 
