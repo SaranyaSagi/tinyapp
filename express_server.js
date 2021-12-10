@@ -41,6 +41,10 @@ const users = {
 }
 
 //Functions
+
+//require function getUserByEmail
+const getUserByEmail = require('./helper')
+
 const generateRandomString = function(length = 6) {
 //returns random (6 alphanumeric characters) string to be used as shortURL
   let result  = '';
@@ -61,16 +65,6 @@ const getUserObject = function(user_id) {
     }
   }
   return currentUser;
-}
-
-const getUserByEmail = function(email, database) {
-
-  for (let key in database) {
-    if (database[key].email === email) {
-      return database[key].id;
-    }
-  }
-  return null;
 }
 
 const doesEmailExist = function(email) {
