@@ -39,6 +39,8 @@ const users = {
 };
 
 //Functions
+
+//This fucntion returns user object of the email if found.
 const getUserByEmail = require('./helpers');
 
 const generateRandomString = function(length = 6) {
@@ -198,6 +200,7 @@ app.post('/urls/:shortURL', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
+  //To clear cookies after log out
   req.session = null;
   res.redirect('/urls');
 });
