@@ -15,11 +15,13 @@
     <% if (user){ %>
       <h5> Logged in as: <%= user.email%></h5>
       <form method="POST" action="/logout"> 
-        <button class="navbar-nav" >Log Out</button>
+        <button class="btn btn-link" >Log Out</button>
       </form>
     <% } else{ %>  
+        <div class="navbar-nav">
         <a class="nav-item nav-link" href="/login">Log in</a>
         <a class="nav-item nav-link" href="/register">Register</a>
+      </div>
       <% } %>
 
 
