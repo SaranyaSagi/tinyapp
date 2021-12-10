@@ -110,7 +110,6 @@ app.get("/urls/new", (req, res) => {
   }
 
   let currentUser = getUserObject(req.session.user_id);
-
   const templateVars = {
     user: currentUser
   };
@@ -129,7 +128,7 @@ app.get("/urls/:shortURL", (req, res) => {
     return res.send("Error: Short URL not found");
   }
 
-  if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {  //getting userID undefined.
+  if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
     return res.send("Need to login first");
   }
   
@@ -176,7 +175,6 @@ app.post('/urls/:shortURL/delete', (req, res) =>{
   }
 
   const shortURL = req.params.shortURL;
-  // use extracted id to delete url from db
   delete urlDatabase[shortURL];
   
   res.redirect('/urls');
@@ -230,11 +228,7 @@ app.post('/login', (req, res) => {
     res.status(403).send("Wrong Password");
     return;
   }
-
-  //const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-  //console.log(bcrypt.compareSync("code", hashedPassword));
   
-  //original - res.cookie("user_id", user_id)
   req.session['user_id'] = user_id;
 
   res.redirect('/urls');
@@ -274,10 +268,6 @@ app.post('/register', (req, res) => {
 
   res.redirect('/urls');
 });
-
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
