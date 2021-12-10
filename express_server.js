@@ -1,5 +1,5 @@
 const express = require("express");
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs")
 const { response } = require("express");
