@@ -2,6 +2,8 @@ const express = require("express");
 const cookieSession = require('cookie-session');
 const bodyParser = require("body-parser");
 const bcrypt = require("bcryptjs");
+const methodOverride = require('method-override');
+
 
 const app = express();
 const PORT = 8080;
@@ -12,6 +14,9 @@ app.use(cookieSession({
   name: 'session',
   keys: ["secret-keys"],
 }));
+
+// override with POST having ?_method=DELETE or ?_method=PUT in ejs
+app.use(methodOverride('_method'));
 
 //Databases
 const urlDatabase = {
@@ -88,7 +93,8 @@ const urlsForUser = function(id) {
 
 app.get("/", (req, res) => {
   if (!req.session.user_id) {
-    res.redirect('/login');
+    //res.redirect('/login');
+    res.send("Please <a href='/login'>Log in</a> first or <a href='/register'>Register</a> if new user! Thank you.");
   }
 });
 
@@ -133,7 +139,7 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 
   if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
-    return res.send("Need to login first");
+    return res.send("Need to <a href='/login'>login</a> first");
   }
   
   const templateVars = {
@@ -147,7 +153,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
 
   if (!req.session.user_id) {
-    return res.send("Need to login/register first");
+    return res.send("Need to <a href='/login'>login</a> or <a href='/register'>register</a> first");
   }
 
   const shortURL = generateRandomString();
@@ -169,15 +175,14 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(URL.longURL);
 });
 
-app.post('/urls/:shortURL/delete', (req, res) =>{
-  
+app.delete('/urls/:shortURL', (req, res) =>{
   //Check if user is logged in
   if (!req.session.user_id) {
     res.redirect('/login');
   }
 
   if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
-    return res.send("Need to login first");
+    return res.send("Need to <a href='/login'>login</a> first");
   }
 
   const shortURL = req.params.shortURL;
@@ -186,7 +191,7 @@ app.post('/urls/:shortURL/delete', (req, res) =>{
   res.redirect('/urls');
 });
 
-app.post('/urls/:shortURL', (req, res) => {
+app.put('/urls/:shortURL', (req, res) => {
   //Check if user is logge in
   if (!req.session.user_id) {
     return res.redirect('/login');
@@ -194,7 +199,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
   //checking if cookie is not matching existing userIDs
   if (req.session.user_id !== urlDatabase[req.params.shortURL].userID) {
-    return res.send("Need to login first");
+    return res.send("Need to <a href='/login'>login</a> first");
   }
 
   const shortURL = req.params.shortURL;
@@ -224,20 +229,20 @@ app.post('/login', (req, res) => {
   
   //Checking if email or password fields are empty
   if (!req.body.email || !req.body.password) {
-    res.status(403).send("Invalid email or password");
+    res.status(403).send("Invalid email or password. Please <a href='/login'> try again </a>");
     return;
   }
 
   //Use helper function to see if email matches existing users.
   const user_id = getUserByEmail(req.body.email, users);
   if (user_id === null) {
-    res.status(403).send("Email does not exist");
+    res.status(403).send("Email does not exist. Please <a href='/login'>try again</a> or <a href='/register'>register</a> if new user.");
     return;
   }
 
   //Checking if password existing password for associated email
   if (!(bcrypt.compareSync(req.body.password, users[user_id].password))) {
-    res.status(403).send("Wrong Password");
+    res.status(403).send("Wrong Password. Please <a href='/login'> try again </a>");
     return;
   }
   
@@ -259,12 +264,12 @@ app.get("/register", (req, res) => {
 app.post('/register', (req, res) => {
   
   if (!req.body.email || !req.body.password) {
-    res.status(400).send("Invalid email or password");
+    res.status(400).send("Invalid email or password. Please <a href='/register'> try again </a>");
     return;
   }
 
   if (doesEmailExist(req.body.email)) {
-    res.status(400).send("Email already exists");
+    res.status(400).send("Email already exists. Please <a href='/register'> try again </a>");
     return;
   }
 
